@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-window.ENCOM = (window.ENCOM || {});
-window.ENCOM.Globe = require('./src/Globe.js');
+window.TOFGLOBE = (window.TOFGLOBE || {});
+window.TOFGLOBE.Globe = require('./src/Globe.js');
 
 
 },{"./src/Globe.js":15}],2:[function(require,module,exports){
@@ -42080,83 +42080,6 @@ Globe.prototype.destroy = function(callback){
 
 };
 
-Globe.prototype.addPin = function(lat, lon, text){
-
-    lat = parseFloat(lat);
-    lon = parseFloat(lon);
-
-    var opts = {
-        lineColor: this.pinColor,
-        topColor: this.pinColor
-    }
-
-    var altitude = 1.2;
-
-    if(typeof text != "string" || text.length === 0){
-        altitude -= .05 + Math.random() * .05;
-    }
-
-    var pin = new Pin(lat, lon, text, altitude, this.scene, this.smokeProvider, opts);
-
-    this.pins.push(pin);
-
-    // lets add quadtree stuff
-
-    var pos = latLon2d(lat, lon);
-
-    pin.pos_ = new Vec2(parseInt(pos.x),parseInt(pos.y)); 
-
-    if(text.length > 0){
-        pin.rad_ = pos.rad;
-    } else {
-        pin.rad_ = 1;
-    }
-
-    this.quadtree.addObject(pin);
-
-    if(text.length > 0){
-        var collisions = this.quadtree.getCollisionsForObject(pin);
-        var collisionCount = 0;
-        var tooYoungCount = 0;
-        var hidePins = [];
-
-        for(var i in collisions){
-            if(collisions[i].text.length > 0){
-                collisionCount++;
-                if(collisions[i].age() > 5000){
-                    hidePins.push(collisions[i]);
-                } else {
-                    tooYoungCount++;
-                }
-            }
-        }
-
-        if(collisionCount > 0 && tooYoungCount == 0){
-            for(var i = 0; i< hidePins.length; i++){
-                hidePins[i].hideLabel();
-                hidePins[i].hideSmoke();
-                hidePins[i].hideTop();
-                hidePins[i].changeAltitude(Math.random() * .05 + 1.1);
-            }
-        } else if (collisionCount > 0){
-            pin.hideLabel();
-            pin.hideSmoke();
-            pin.hideTop();
-            pin.changeAltitude(Math.random() * .05 + 1.1);
-        }
-    }
-
-    if(this.pins.length > this.maxPins){
-        var oldPin = this.pins.shift();
-        this.quadtree.removeObject(oldPin);
-        oldPin.remove();
-
-    }
-
-    return pin;
-
-}
-
 Globe.prototype.addMarker = function(lat, lon, text, connected){
 
     var marker;
@@ -42182,69 +42105,12 @@ Globe.prototype.addMarker = function(lat, lon, text, connected){
     return marker;
 }
 
-Globe.prototype.addSatellite = function(lat, lon, altitude, opts, texture, animator){
-    /* texture and animator are optimizations so we don't have to regenerate certain 
-     * redundant assets */
 
-    if(!opts){
-        opts = {};
-    }
-
-    if(opts.coreColor == undefined){
-        opts.coreColor = this.satelliteColor;
-    }
-
-    var satellite = new Satellite(lat, lon, altitude, this.scene, opts, texture, animator);
-
-    if(!this.satellites[satellite.toString()]){
-        this.satellites[satellite.toString()] = satellite;
-    }
-
-    satellite.onRemove(function(){
-            delete this.satellites[satellite.toString()];
-            }.bind(this));
-
-    return satellite;
-
-};
-
-Globe.prototype.addConstellation = function(sats, opts){
-
-    /* TODO: make it so that when you remove the first in a constellation it removes all others */
-
-    var texture,
-    animator,
-    satellite,
-    constellation = [];
-
-    for(var i = 0; i< sats.length; i++){
-        if(i === 0){
-            satellite = this.addSatellite(sats[i].lat, sats[i].lon, sats[i].altitude, opts);
-        } else {
-            satellite = this.addSatellite(sats[i].lat, sats[i].lon, sats[i].altitude, opts, constellation[0].canvas, constellation[0].texture);
-        }
-        constellation.push(satellite);
-
-    }
-
-    return constellation;
-
-};
-
-
-Globe.prototype.setMaxPins = function(_maxPins){
-    this.maxPins = _maxPins;
-
-    while(this.pins.length > this.maxPins){
-        var oldPin = this.pins.shift();
-        this.quadtree.removeObject(oldPin);
-        oldPin.remove();
-    }
-};
 
 Globe.prototype.setMaxMarkers = function(_maxMarkers){
     this.maxMarkers = _maxMarkers;
     while(this.markers.length > this.maxMarkers){
+	console.log('marker removed');
         this.markers.shift().remove();
     }
 };

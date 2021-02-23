@@ -473,6 +473,7 @@ Globe.prototype.addMarker = function(lat, lon, text, connected){
     this.markers.push(marker);
 
     if(this.markers.length > this.maxMarkers){
+        console.log('marker removed');
         this.markers.shift().remove();
     }
 
@@ -542,6 +543,7 @@ Globe.prototype.setMaxPins = function(_maxPins){
 Globe.prototype.setMaxMarkers = function(_maxMarkers){
     this.maxMarkers = _maxMarkers;
     while(this.markers.length > this.maxMarkers){
+        console.log('marker removed');
         this.markers.shift().remove();
     }
 };
