@@ -12,7 +12,7 @@ body {
 .Globe_DescPoints {
     margin: 0px;
     padding: 0px;
-    width: 360px;
+    width: 230px;
     border-radius: 6px;
     background-color: #262626;
     position: absolute;
@@ -23,7 +23,7 @@ body {
 .Globe_DescPoints:before {
     position: absolute;
     left: 20px;
-    top: -30px;
+    top: -20px;
     content: "";
     background-image: url('resources/bg_circle.png');
     background-position: center;
@@ -50,7 +50,7 @@ body {
     font-family: 'Open Sans', sans-serif;
     list-style-type: none;
     border-bottom: 1px solid #000;
-    font-size: 18px;
+    font-size: 12px;
     font-weight: 400;
     color: #fff;
     padding: 13px 28px;
