@@ -1,214 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta property="og:image" content="resources/fp_icon.jpg" />
-        <meta property="og:description" content="A WebGL implementation of the Encom Boardroom visualization in Tron: Legacy" />
-        <title>TOF Globe</title>
 
-        <!-- these are just for the demo page / options -->
-        <script src="include/jquery-2.0.3.min.js"></script>
-        <script src="include/jquery-ui.min.js"></script>
-        <!-- <script src="include/spectrum.js"></script> -->
-        <link href="include/spectrum.css" rel="stylesheet" type="text/css" />
-        <script src="include/Detector.js"></script>
+<head>
+    <meta charset="utf-8">
+    <meta property="og:image" content="resources/fp_icon.jpg" />
+    <meta property="og:description" content="A WebGL implementation of the Encom Boardroom visualization in Tron: Legacy" />
+    <title>TOF Globe</title>
 
-        <link href="styles.css" rel="stylesheet" type="text/css" />
+    <!-- these are just for the demo page / options -->
+    <script src="include/jquery-2.0.3.min.js"></script>
+    <script src="include/jquery-ui.min.js"></script>
+    <!-- <script src="include/spectrum.js"></script> -->
+    <link href="include/spectrum.css" rel="stylesheet" type="text/css" />
+    <script src="include/Detector.js"></script>
 
-        <!-- required for the application -->
-        <!-- <script src="data.js"></script> -->
-        <script src="grid.js"></script>
+    <link href="styles.css" rel="stylesheet" type="text/css" />
 
-        <!-- ref:js build/encom-globe.min.js -->
-        <script src="build/encom-globe.js"></script>
-        <!-- endref -->
+    <!-- required for the application -->
+    <!-- <script src="data.js"></script> -->
+    <script src="grid.js"></script>
 
-        <script>
+    <!-- ref:js build/encom-globe.min.js -->
+    <script src="build/encom-globe.js"></script>
+    <!-- endref -->
 
-            var globe,
+    <script>
+        var globe,
             globeCount = 0;
-            globeScale = 1.0
+        globeScale = 1.0
 
 
-            function createGlobe(){
-                // var newData = [];
-                globeCount++;
-                $("#globe canvas").remove();
-                // newData = data.slice();
-                
+        function createGlobe() {
+            // var newData = [];
+            globeCount++;
+            $("#globe canvas").remove();
+            // newData = data.slice();
 
-                globe = new TOFGLOBE.Globe(window.innerWidth, window.innerHeight, {
-                    font: "Inconsolata",
-                    // data: newData, // copy the data array
-                    tiles: grid.tiles,
-                    baseColor: '#FBC500',
-                    markerColor: '#FEA000',
-                    pinColor: '#8FD8D8',
-                    satelliteColor: '#ff0000',
-                    scale: globeScale,
-                    dayLength: 1000 * 28,
-                    introLinesDuration: 10000,
-                    maxPins: 10,
-                    maxMarkers: 50,
-                    viewAngle: '.1'
-                });
-                // globe.setMaxMarkers(data.value);
 
-                $("#globe").append(globe.domElement);
+            globe = new TOFGLOBE.Globe(window.innerWidth, window.innerHeight, {
+                font: "Inconsolata",
+                // data: newData, // copy the data array
+                tiles: grid.tiles,
+                baseColor: '#FBC500',
+                markerColor: '#FEA000',
+                pinColor: '#8FD8D8',
+                satelliteColor: '#ff0000',
+                scale: globeScale,
+                dayLength: 1000 * 28,
+                introLinesDuration: 10000,
+                maxPins: 10,
+                maxMarkers: 50,
+                viewAngle: '.1'
+            });
+            // globe.setMaxMarkers(data.value);
+
+            $("#globe").append(globe.domElement);
+            globe.init(start);
+
+            setTimeout(function() {
                 globe.init(start);
+            }, 180000);
+        }
+
+        function onWindowResize() {
+            globe.camera.aspect = window.innerWidth / window.innerHeight;
+            globe.camera.updateProjectionMatrix();
+            globe.renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+
+        function roundNumber(num) {
+            return Math.round(num * 100) / 100;
+        }
+
+        function projectionToLatLng(width, height, x, y) {
+
+            return {
+                lat: 90 - 180 * (y / height),
+                lon: 360 * (x / width) - 180,
+            };
+
+        }
+
+        function animate() {
+
+            if (globe) {
+                globe.tick();
             }
 
-            function onWindowResize(){
-                globe.camera.aspect = window.innerWidth / window.innerHeight;
-                globe.camera.updateProjectionMatrix();
-                globe.renderer.setSize(window.innerWidth, window.innerHeight);
+            lastTickTime = Date.now();
 
-            }
+            requestAnimationFrame(animate);
+        }
 
-            function roundNumber(num){
-                return Math.round(num * 100)/100;
-            }
+        async function start() {
 
-            function projectionToLatLng(width, height, x,y){
 
-                return {
-                    lat: 90 - 180*(y/height),
-                    lon: 360*(x/width)- 180,
-                };
+            if (globeCount == 1) {
+                createGlobe(); // only do this for the first globe that's created. very messy
+                // $("#apply-button").click(function(e){
+                //     globe.destroy(function(){
+                //         createGlobe();
+                //         });
+                // });
 
-            }
+                // $("#add-element li").click(function(e){
+                //     $("#add-element li").removeClass("selected");
+                //     $(e.currentTarget).addClass("selected");
+                // });
 
-            function animate(){
+                animate();
+                var lat = Math.random() * 180 - 90,
+                    lon = Math.random() * 360 - 180,
+                    name = "Test " + Math.floor(Math.random() * 100);
+                globe.addMarker(lat, lon, "C", true);
+                await new Promise(r => setTimeout(r, 2000));
+                var lat = Math.random() * 180 - 90,
+                    lon = Math.random() * 360 - 180,
+                    name = "Test " + Math.floor(Math.random() * 100);
+                globe.addMarker(lat, lon, "Tx", true);
+                await new Promise(r => setTimeout(r, 2000));
+                var lat = Math.random() * 180 - 90,
+                    lon = Math.random() * 360 - 180,
+                    name = "Test " + Math.floor(Math.random() * 100);
+                globe.addMarker(lat, lon, "S", true);
+                await new Promise(r => setTimeout(r, 2000));
+                var lat = Math.random() * 180 - 90,
+                    lon = Math.random() * 360 - 180,
+                    name = "Test " + Math.floor(Math.random() * 100);
+                globe.addMarker(lat, lon, "R", true);
 
-                if(globe){
-                    globe.tick();
-                }
+                /* add pins at random locations */
+                setInterval(async function() {
 
-                lastTickTime = Date.now();
 
-                requestAnimationFrame(animate);
-            }
-
-            async function start(){
-                
-                
-                if(globeCount == 1){
-                    createGlobe(); // only do this for the first globe that's created. very messy
-                    // $("#apply-button").click(function(e){
-                    //     globe.destroy(function(){
-                    //         createGlobe();
-                    //         });
-                    // });
-
-                    // $("#add-element li").click(function(e){
-                    //     $("#add-element li").removeClass("selected");
-                    //     $(e.currentTarget).addClass("selected");
-                    // });
-
-                    animate();
                     var lat = Math.random() * 180 - 90,
-                           lon = Math.random() * 360 - 180,
-                           name = "Test " + Math.floor(Math.random() * 100);
+                        lon = Math.random() * 360 - 180,
+                        name = "Test " + Math.floor(Math.random() * 100);
+
+                    // globe.addPin(lat,lon, name);
                     globe.addMarker(lat, lon, "C", true);
                     await new Promise(r => setTimeout(r, 2000));
                     var lat = Math.random() * 180 - 90,
-                           lon = Math.random() * 360 - 180,
-                           name = "Test " + Math.floor(Math.random() * 100);
+                        lon = Math.random() * 360 - 180,
+                        name = "Test " + Math.floor(Math.random() * 100);
                     globe.addMarker(lat, lon, "Tx", true);
                     await new Promise(r => setTimeout(r, 2000));
                     var lat = Math.random() * 180 - 90,
-                           lon = Math.random() * 360 - 180,
-                           name = "Test " + Math.floor(Math.random() * 100);
+                        lon = Math.random() * 360 - 180,
+                        name = "Test " + Math.floor(Math.random() * 100);
                     globe.addMarker(lat, lon, "S", true);
                     await new Promise(r => setTimeout(r, 2000));
                     var lat = Math.random() * 180 - 90,
-                           lon = Math.random() * 360 - 180,
-                           name = "Test " + Math.floor(Math.random() * 100);
+                        lon = Math.random() * 360 - 180,
+                        name = "Test " + Math.floor(Math.random() * 100);
                     globe.addMarker(lat, lon, "R", true);
 
-                    /* add pins at random locations */
-                    setInterval(async function(){
-
-                        
-                        var lat = Math.random() * 180 - 90,
-                           lon = Math.random() * 360 - 180,
-                           name = "Test " + Math.floor(Math.random() * 100);
-
-                        // globe.addPin(lat,lon, name);
-                        globe.addMarker(lat, lon, "C", true);
-                        await new Promise(r => setTimeout(r, 2000));
-                        var lat = Math.random() * 180 - 90,
-                           lon = Math.random() * 360 - 180,
-                           name = "Test " + Math.floor(Math.random() * 100);
-                        globe.addMarker(lat, lon, "Tx", true);
-                        await new Promise(r => setTimeout(r, 2000));
-                        var lat = Math.random() * 180 - 90,
-                           lon = Math.random() * 360 - 180,
-                           name = "Test " + Math.floor(Math.random() * 100);
-                        globe.addMarker(lat, lon, "S", true);
-                        await new Promise(r => setTimeout(r, 2000));
-                        var lat = Math.random() * 180 - 90,
-                           lon = Math.random() * 360 - 180,
-                           name = "Test " + Math.floor(Math.random() * 100);
-                        globe.addMarker(lat, lon, "R", true);
-
-                    }, 8000);
-
-    
-                }
+                }, 8000);
 
 
             }
 
 
-            $(function() {
-                var open = false;
+        }
 
 
-                if(!Detector.webgl)
-                {
-                    Detector.addGetWebGLMessage({parent: document.getElementById("container")});
-                    return;
-                }
-
-                window.addEventListener( 'resize', onWindowResize, false );
-
-                
-
-                var docHeight = $(document).height();
-                createGlobe();
-
-                
-                /* Webgl stuff */
+        $(function() {
+            var open = false;
 
 
-                /* web font stuff*/
-                var wf = document.createElement('script');
-                wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
-                    '://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js';
-                wf.type = 'text/javascript';
-                wf.async = 'true';
-                var s = document.getElementsByTagName('script')[0];
-                s.parentNode.insertBefore(wf, s);
+            if (!Detector.webgl) {
+                Detector.addGetWebGLMessage({
+                    parent: document.getElementById("container")
+                });
+                return;
+            }
 
-            });
+            window.addEventListener('resize', onWindowResize, false);
 
-        </script>
 
-    </head>
-    <body>
-        <div id="container">
-            <div id="globe">
-            </div>
-            <ul class="Globe_DescPoints">
-                <li><span>R</span> - New Registered Copyright</li>
-                <li><span>C</span> - New Contract Initiated</li>
-                <li><span>S</span> - New Signup</li>
-                <li><span>TX</span> - New TOB&reg; Transaction</li>
-            </ul>
+
+            var docHeight = $(document).height();
+            createGlobe();
+
+
+            /* Webgl stuff */
+
+
+            /* web font stuff*/
+            var wf = document.createElement('script');
+            wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+                '://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js';
+            wf.type = 'text/javascript';
+            wf.async = 'true';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(wf, s);
+
+        });
+    </script>
+
+</head>
+
+<body>
+    <div id="container">
+        <div id="globe">
         </div>
-        <!-- ref:include analytics -->
-        <!-- endref -->
-    </body>
-</html>
+        <ul class="Globe_DescPoints">
+            <li><span>R</span> - New Registered Copyright</li>
+            <li><span>C</span> - New Contract Initiated</li>
+            <li><span>S</span> - New Signup</li>
+            <li><span>TX</span> - New TOB&reg; Transaction</li>
+        </ul>
+    </div>
+    <!-- ref:include analytics -->
+    <!-- endref -->
+</body>
 
+</html>
